@@ -6,12 +6,15 @@ namespace norim.flox.domain
 {
     public abstract class FileRepositoryBase : IFileRepository
     {
-        public FileData Get(string key)
+        public FileData Get(string container, string key)
         {
+            if (string.IsNullOrWhiteSpace(container))
+                throw new ArgumentNullException(nameof(container));
+
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentNullException(nameof(key));
 
-            Get(out Stream stream, out IDictionary<string, string> metadata);
+            Get(container, key, out Stream stream, out IDictionary<string, string> metadata);
 
             if (stream == null)
                 return null;
@@ -19,8 +22,11 @@ namespace norim.flox.domain
             return new FileData(stream, metadata);
         }
 
-        public void Save(string key, Stream fileStream, IDictionary<string, string> metadata, bool overwrite = false)
+        public void Save(string container, string key, Stream fileStream, IDictionary<string, string> metadata, bool overwrite = false)
         {
+            if (string.IsNullOrWhiteSpace(container))
+                throw new ArgumentNullException(nameof(container));
+
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentNullException(nameof(key));
 
@@ -30,16 +36,16 @@ namespace norim.flox.domain
             if (metadata == null)
                 throw new ArgumentNullException(nameof(metadata));
 
-            if (Exists(key) && !overwrite)
-                throw new InvalidOperationException($"File '{key}' already exists.");
+            if (Exists(container, key) && !overwrite)
+                throw new InvalidOperationException($"Container '{container}' already contains object '{key}'.");
 
-            SaveInternal(key, fileStream, metadata);
+            SaveInternal(container, key, fileStream, metadata);
         }
 
-        protected abstract void Get(out Stream stream, out IDictionary<string, string> metadata);
+        protected abstract void Get(string container, string key, out Stream stream, out IDictionary<string, string> metadata);
 
-        protected abstract bool Exists(string key);
+        protected abstract bool Exists(string container, string key);
         
-        protected abstract void SaveInternal(string key, Stream fileStream, IDictionary<string, string> metadata);
+        protected abstract void SaveInternal(string container, string key, Stream fileStream, IDictionary<string, string> metadata);
     }
 }
