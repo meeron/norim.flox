@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using norim.flox.core.Configuration;
 using norim.flox.web.Infrastructure;
 
 namespace norim.flox.web
@@ -24,6 +25,8 @@ namespace norim.flox.web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<ISettings>(x => new Settings(Configuration));
+
             services.AddMvc(options =>
             {
                 options.Conventions.Add(new FeatureConvention());
