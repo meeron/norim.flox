@@ -14,7 +14,7 @@ namespace norim.flox.domain
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentNullException(nameof(key));
 
-            Get(container, key, out Stream stream, out IDictionary<string, string> metadata);
+            var stream = Get(container, key, out IDictionary<string, string> metadata);
 
             if (stream == null)
                 return null;
@@ -42,7 +42,7 @@ namespace norim.flox.domain
             SaveInternal(container, key, fileStream, metadata);
         }
 
-        protected abstract void Get(string container, string key, out Stream stream, out IDictionary<string, string> metadata);
+        protected abstract Stream Get(string container, string key, out IDictionary<string, string> metadata);
 
         protected abstract bool Exists(string container, string key);
         
