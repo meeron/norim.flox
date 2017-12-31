@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using norim.flox.core.Configuration;
 using norim.flox.web.Infrastructure;
+using norim.flox.web.Middlewares;
 
 namespace norim.flox.web
 {
@@ -36,6 +37,8 @@ namespace norim.flox.web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
+            
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
