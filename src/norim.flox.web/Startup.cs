@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using norim.flox.web.Infrastructure;
 
 namespace norim.flox.web
 {
@@ -23,13 +24,24 @@ namespace norim.flox.web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                options.Conventions.Add(new FeatureConvention());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name:"FeatureDefaultRoute",
+                    template: "_{feature}/{controller}/{action=Get}",
+                    constraints: null,
+                    defaults: null,
+                    dataTokens: new { Namespace = "norim.flox.web.Features" });
+            });
         }
     }
 }

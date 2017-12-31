@@ -4,12 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace norim.flox.web.Controllers
+namespace norim.flox.web.Features.Api
 {
-    [Route("[controller]")]
     public class StatusController : Controller
     {
-        // GET api/values
         [HttpGet]
         public object Get()
         {
