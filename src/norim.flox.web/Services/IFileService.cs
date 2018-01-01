@@ -5,6 +5,6 @@ namespace norim.flox.web.Services
 {
     public interface IFileService
     {
-         Task SaveAsync();
+         Task SaveAsync(string boundary, Stream bodyStream);
     }
 }

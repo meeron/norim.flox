@@ -2,6 +2,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using norim.flox.core.Configuration;
+using System;
 
 namespace norim.flox.domain.Implementations.FileSystem
 {
@@ -35,6 +36,10 @@ namespace norim.flox.domain.Implementations.FileSystem
         protected override void SaveInternal(string container, string key, Stream fileStream, IDictionary<string, string> metadata)
         {
             var filePath = ToLocalPath(container, key);
+            
+            var dir = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
 
             using(var fs = File.Open(filePath, FileMode.Create, FileAccess.Write))
             {

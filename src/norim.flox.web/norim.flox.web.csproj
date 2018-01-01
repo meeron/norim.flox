@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\norim.flox.core\norim.flox.core.csproj" />
+    <ProjectReference Include="..\norim.flox.domain\norim.flox.domain.csproj" />
   </ItemGroup>
 
 </Project>

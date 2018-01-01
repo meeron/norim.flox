@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using norim.flox.core.Configuration;
+using norim.flox.domain;
 using norim.flox.web.Infrastructure;
 using norim.flox.web.Middlewares;
 using norim.flox.web.Services;
@@ -29,6 +30,7 @@ namespace norim.flox.web
         {
             services.AddSingleton<ISettings>(x => new Settings(Configuration));
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IFileRepository, domain.Implementations.FileSystem.FileRepository>();
 
             services.AddMvc(options =>
             {
