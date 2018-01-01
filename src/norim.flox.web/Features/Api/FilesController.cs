@@ -1,7 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using norim.flox.web.Attributes;
+using norim.flox.web.Models;
 using norim.flox.web.Services;
+using norim.flox.web.Utilities;
 
 namespace norim.flox.web.Features.Api
 {
@@ -14,16 +17,21 @@ namespace norim.flox.web.Features.Api
             _service = service;
         }
 
-        [HttpPost]
-        public async Task<object> Upload()
+        [HttpPost, DisableFormValueModelBinding]
+        public async Task<IActionResult> Upload()
         {
+            if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
+            {
+                return BadRequest(new ErrorResponse(HttpContext.TraceIdentifier, $"Expected a multipart request, but got {Request.ContentType}"));
+            }            
+            
             await _service.SaveAsync();
 
-            return new
+            return Json(new
             {
                 RequestId = HttpContext.TraceIdentifier,
                 ServerTimeUTC = DateTime.UtcNow.ToString("o")
-            };
+            });
         }       
     }
 }

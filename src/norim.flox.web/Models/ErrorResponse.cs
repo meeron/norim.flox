@@ -1,6 +1,6 @@
 using System;
 
-namespace norim.flox.web.Middlewares
+namespace norim.flox.web.Models
 {
     public class ErrorResponse
     {

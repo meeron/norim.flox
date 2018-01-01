@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using norim.flox.web.Models;
 
 namespace norim.flox.web.Middlewares
 {
