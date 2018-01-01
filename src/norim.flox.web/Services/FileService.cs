@@ -84,8 +84,9 @@ namespace norim.flox.web.Services
 
             using(var fs = File.OpenRead(targetFilePath))
             {
-                _repository.Save(container, resourceKey, fs, metadata);
+                await _repository.SaveAsync(container, resourceKey, fs, metadata);
             }
+
             File.Delete(targetFilePath);
         }
 

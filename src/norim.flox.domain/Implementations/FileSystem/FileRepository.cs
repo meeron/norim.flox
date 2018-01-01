@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using norim.flox.core.Configuration;
 using System;
+using System.Threading.Tasks;
 
 namespace norim.flox.domain.Implementations.FileSystem
 {
@@ -33,7 +34,7 @@ namespace norim.flox.domain.Implementations.FileSystem
             return File.OpenRead(filePath);
         }
 
-        protected override void SaveInternal(string container, string key, Stream fileStream, IDictionary<string, string> metadata)
+        protected override async Task SaveInternalAsync(string container, string key, Stream fileStream, IDictionary<string, string> metadata)
         {
             var filePath = ToLocalPath(container, key);
             
@@ -43,7 +44,7 @@ namespace norim.flox.domain.Implementations.FileSystem
 
             using(var fs = File.Open(filePath, FileMode.Create, FileAccess.Write))
             {
-                fileStream.CopyTo(fs);
+                await fileStream.CopyToAsync(fs);
             }
 
             SaveMetadata(filePath, metadata);

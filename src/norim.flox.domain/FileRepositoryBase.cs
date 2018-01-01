@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace norim.flox.domain
 {
@@ -22,7 +23,7 @@ namespace norim.flox.domain
             return new FileData(stream, metadata);
         }
 
-        public void Save(string container, string key, Stream fileStream, IDictionary<string, string> metadata, bool overwrite = false)
+        public async Task SaveAsync(string container, string key, Stream fileStream, IDictionary<string, string> metadata, bool overwrite = false)
         {
             if (string.IsNullOrWhiteSpace(container))
                 throw new ArgumentNullException(nameof(container));
@@ -39,13 +40,13 @@ namespace norim.flox.domain
             if (Exists(container, key) && !overwrite)
                 throw new InvalidOperationException($"Container '{container}' already contains object '{key}'.");
 
-            SaveInternal(container, key, fileStream, metadata);
+            await SaveInternalAsync(container, key, fileStream, metadata);
         }
 
         protected abstract Stream Get(string container, string key, out IDictionary<string, string> metadata);
 
         protected abstract bool Exists(string container, string key);
         
-        protected abstract void SaveInternal(string container, string key, Stream fileStream, IDictionary<string, string> metadata);
+        protected abstract Task SaveInternalAsync(string container, string key, Stream fileStream, IDictionary<string, string> metadata);
     }
 }
