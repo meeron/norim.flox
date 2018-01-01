@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using norim.flox.core.Configuration;
 using norim.flox.web.Infrastructure;
 using norim.flox.web.Middlewares;
+using norim.flox.web.Services;
 
 namespace norim.flox.web
 {
@@ -27,6 +28,7 @@ namespace norim.flox.web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<ISettings>(x => new Settings(Configuration));
+            services.AddScoped<IFileService, FileService>();
 
             services.AddMvc(options =>
             {
