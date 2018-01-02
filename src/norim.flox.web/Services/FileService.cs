@@ -41,7 +41,7 @@ namespace norim.flox.web.Services
                 {
                     if (MultipartRequestHelper.HasFileContentDisposition(contentDisposition))
                     {
-                        targetFilePath = Path.GetTempFileName();
+                        targetFilePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
                         
                         using(var fs = File.Create(targetFilePath))
                         {
