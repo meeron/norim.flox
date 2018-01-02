@@ -23,24 +23,23 @@ namespace norim.flox.domain
             return new FileData(stream, metadata);
         }
 
-        public async Task SaveAsync(string container, string key, Stream fileStream, IDictionary<string, string> metadata, bool overwrite = false)
+        public async Task SaveAsync(FileToSave fileToSave)
         {
-            if (string.IsNullOrWhiteSpace(container))
-                throw new ArgumentNullException(nameof(container));
+            if (fileToSave == null)
+                throw new ArgumentNullException(nameof(fileToSave));
 
-            if (string.IsNullOrWhiteSpace(key))
-                throw new ArgumentNullException(nameof(key));
+            if (Exists(fileToSave.Container, fileToSave.ResourceKey) && !fileToSave.Overwrite)
+                throw new InvalidOperationException($"Container '{fileToSave.Container}' already contains resource '{fileToSave.ResourceKey}'.");
 
-            if (fileStream == null)
-                throw new ArgumentNullException(nameof(fileStream));
+            fileToSave.ThrowIfInvalid();
 
-            if (metadata == null)
-                throw new ArgumentNullException(nameof(metadata));
+            using(var fs = File.OpenRead(fileToSave.LocalPath))
+            {
+                await SaveInternalAsync(fileToSave.Container, fileToSave.ResourceKey, fs, fileToSave.Metadata);
+            }
 
-            if (Exists(container, key) && !overwrite)
-                throw new InvalidOperationException($"Container '{container}' already contains object '{key}'.");
-
-            await SaveInternalAsync(container, key, fileStream, metadata);
+            if (fileToSave.DeleteLocalFileAfterSave)
+                File.Delete(fileToSave.LocalPath);
         }
 
         protected abstract Stream Get(string container, string key, out IDictionary<string, string> metadata);
