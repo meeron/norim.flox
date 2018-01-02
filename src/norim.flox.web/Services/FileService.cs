@@ -26,17 +26,17 @@ namespace norim.flox.web.Services
         public async Task SaveAsync(string boundary, Stream bodyStream)
         {
             MultipartSection section = null;
-            ContentDispositionHeaderValue contentDisposition = null;
             var metadata = new Dictionary<string, string>();
-            string container = string.Empty;
-            string resourceKey = string.Empty;
-            string targetFilePath = string.Empty;
+            var container = string.Empty;
+            var resourceKey = string.Empty;
+            var targetFilePath = string.Empty;
 
             var reader = new MultipartReader(boundary, bodyStream);
 
             section = await reader.ReadNextSectionAsync();
             while(section != null)
             {
+                ContentDispositionHeaderValue contentDisposition = null;
                 if (ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out contentDisposition))
                 {
                     if (MultipartRequestHelper.HasFileContentDisposition(contentDisposition))
@@ -61,12 +61,18 @@ namespace norim.flox.web.Services
                         var key = HeaderUtilities.RemoveQuotes(contentDisposition.Name).ToString();
                         var value = await GetValue(section.Body, GetEncoding(section));
 
-                        if (key == ContainerFormKey)
-                            container = value;
-                        else if (key == ResourceKeyFormKey)
-                            resourceKey = value;
-                        else
-                            metadata.Add(key, value);
+                        switch (key)
+                        {
+                            case ContainerFormKey:
+                                container = value;
+                                break;
+                            case ResourceKeyFormKey:
+                                resourceKey = value;
+                                break;
+                            default:
+                                metadata.Add(key, value);
+                                break;
+                        }
                     }
                 }
 

@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
 using norim.flox.web.Attributes;
 using norim.flox.web.Models;
@@ -19,7 +15,7 @@ namespace norim.flox.web.Features.Api
 
         private readonly IFileService _service;
 
-        private static readonly FormOptions _defaultFormOptions = new FormOptions();
+        private static readonly FormOptions DefaultFormOptions = new FormOptions();
 
         public FilesController(IFileService service)
         {
@@ -38,7 +34,7 @@ namespace norim.flox.web.Features.Api
             {
                 var boundary = MultipartRequestHelper.GetBoundary(
                     MediaTypeHeaderValue.Parse(Request.ContentType),
-                    _defaultFormOptions.MultipartBoundaryLengthLimit);
+                    DefaultFormOptions.MultipartBoundaryLengthLimit);
 
                 await _service.SaveAsync(boundary, Request.Body);
 

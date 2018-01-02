@@ -14,12 +14,12 @@ namespace norim.flox.web.Infrastructure
 
         private static string GetFeatureName(TypeInfo controllerType)
         {
-            string[] tokens = controllerType.FullName.Split('.');
+            var tokens = controllerType.FullName.Split('.');
             
-            if (!tokens.Any(t => t == "Features"))
+            if (tokens.All(t => t != "Features"))
                 return "";
             
-            string featureName = tokens.SkipWhile(t => !t.Equals("features", StringComparison.CurrentCultureIgnoreCase))
+            var featureName = tokens.SkipWhile(t => !t.Equals("features", StringComparison.CurrentCultureIgnoreCase))
                 .Skip(1)
                 .Take(1)
                 .FirstOrDefault()

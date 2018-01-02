@@ -2,12 +2,11 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using norim.flox.core.Configuration;
-using System;
 using System.Threading.Tasks;
 
 namespace norim.flox.domain.Implementations.FileSystem
 {
-    public class FileRepository : FileRepositoryBase, IFileRepository
+    public class FileRepository : FileRepositoryBase
     {
         private readonly ISettings _settings;
 
