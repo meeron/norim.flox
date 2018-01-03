@@ -49,6 +49,19 @@ namespace norim.flox.domain.Implementations.FileSystem
             SaveMetadata(filePath, metadata);
         }
 
+        protected override async Task DeleteInternalAsync(string container, string key)
+        {
+            await Task.Run(() =>
+            {
+                var localFile = ToLocalPath(container, key);
+                if (File.Exists(localFile))
+                {
+                    File.Delete(localFile);
+                    File.Delete($"{localFile}.metadata");
+                }
+            });
+        }
+
         private string ToLocalPath(string container, string key)
         {
             return Path.Combine(_settings.Domain.RepositoryPath, container, key.Replace("/", "\\"));

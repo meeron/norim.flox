@@ -50,6 +50,28 @@ namespace norim.flox.web.Features.Api
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Delete(DeleteFileRequest model)
+        {
+            if (model == null)
+                return BadRequestMsg("Invalid request model.");
+
+            try
+            {
+                await _service.DeleteAsync(model);
+
+                return Json(new
+                {
+                    RequestId = HttpContext.TraceIdentifier,
+                    ServerTimeUTC = DateTime.UtcNow.ToString("o")
+                });
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequestMsg(ex.Message);
+            }
+        }
+
         private IActionResult BadRequestMsg(string msg)
         {
             return BadRequest(new ErrorResponse(HttpContext.TraceIdentifier, msg));            

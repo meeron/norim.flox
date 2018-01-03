@@ -42,10 +42,20 @@ namespace norim.flox.domain
                 File.Delete(fileToSave.LocalPath);
         }
 
+        public async Task DeleteAsync(string container, string resourceKey, bool checkFile)
+        {
+            if (checkFile && !Exists(container, resourceKey))
+                throw new Exception($"Container '{container}' doesn't contains resource '{resourceKey}'.");
+
+            await DeleteInternalAsync(container, resourceKey);
+        }
+
         protected abstract Stream Get(string container, string key, out IDictionary<string, string> metadata);
 
         protected abstract bool Exists(string container, string key);
         
         protected abstract Task SaveInternalAsync(string container, string key, Stream fileStream, IDictionary<string, string> metadata);
+
+        protected abstract Task DeleteInternalAsync(string container, string key);
     }
 }

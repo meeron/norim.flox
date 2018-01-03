@@ -87,7 +87,17 @@ namespace norim.flox.web.Services
                 return await streamReader.ReadToEndAsync();
             }
         }
-        
+
+        public async Task DeleteAsync(DeleteFileRequest request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            request.ThrowIfInvalid();
+
+            await _repository.DeleteAsync(request.Container, request.ResourceKey, request.CheckFile);
+        }
+
         private static Encoding GetEncoding(MultipartSection section)
         {
             MediaTypeHeaderValue mediaType;

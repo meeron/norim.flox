@@ -8,6 +8,8 @@ namespace norim.flox.domain
     {
         Task SaveAsync(FileToSave fileToSave);
 
+        Task DeleteAsync(string container, string resourceKey, bool checkFile);
+
         FileData Get(string container, string key);
     }
 }
