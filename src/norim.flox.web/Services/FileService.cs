@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
+using norim.flox.core;
 using norim.flox.domain;
 using norim.flox.web.Models;
 using norim.flox.web.Utilities;
@@ -25,51 +26,53 @@ namespace norim.flox.web.Services
         {
             MultipartSection section = null;
             var formData = new NameValueCollection();
-            var container = string.Empty;
-            var resourceKey = string.Empty;
 
             var reader = new MultipartReader(boundary, bodyStream);
 
-            section = await reader.ReadNextSectionAsync();
-            while(section != null)
+            using(var tempFile = TempFile.Create())
             {
-                ContentDispositionHeaderValue contentDisposition = null;
-                if (ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out contentDisposition))
-                {
-                    if (MultipartRequestHelper.HasFileContentDisposition(contentDisposition))
-                    {
-                        if (formData["LocalPath"] != null)
-                            throw new Exception("Only one file at the time is allowed.");
-
-                        var targetFilePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-                        
-                        using(var fs = File.Create(targetFilePath))
-                        {
-                            await section.Body.CopyToAsync(fs);
-                        }
-
-                        formData.Add("LocalPath", targetFilePath);
-                        formData.Add("Content-Type", section.ContentType);
-                    }
-                    else if (MultipartRequestHelper.HasFormDataContentDisposition(contentDisposition))
-                    {
-                        // Content-Disposition: form-data; name="key"
-                        //
-                        // value
-
-                        // Do not limit the key name length here because the 
-                        // multipart headers length limit is already in effect.
-                        var key = HeaderUtilities.RemoveQuotes(contentDisposition.Name).ToString();
-                        var value = await GetValue(section.Body, GetEncoding(section));
-                        
-                        formData.Add(key, value);
-                    }
-                }
-
                 section = await reader.ReadNextSectionAsync();
-            }
+                while(section != null)
+                {
+                    ContentDispositionHeaderValue contentDisposition = null;
+                    if (ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out contentDisposition))
+                    {
+                        if (MultipartRequestHelper.HasFileContentDisposition(contentDisposition))
+                        {
+                            if (formData["LocalPath"] != null)
+                                throw new Exception("Only one file at the time is allowed.");
+                            
+                            using(var fs = File.Create(tempFile.Path))
+                            {
+                                await section.Body.CopyToAsync(fs);
+                            }
 
-            await _repository.SaveAsync(FileToSave.Map(formData));
+                            formData.Add("LocalPath", tempFile.Path);
+                            formData.Add("Content-Type", section.ContentType);
+                        }
+                        else if (MultipartRequestHelper.HasFormDataContentDisposition(contentDisposition))
+                        {
+                            // Content-Disposition: form-data; name="key"
+                            //
+                            // value
+
+                            // Do not limit the key name length here because the 
+                            // multipart headers length limit is already in effect.
+                            var key = HeaderUtilities.RemoveQuotes(contentDisposition.Name).ToString();
+                            var value = await GetValue(section.Body, GetEncoding(section));
+                            
+                            formData.Add(key, value);
+                        }
+                    }
+
+                    section = await reader.ReadNextSectionAsync();
+                }
+                
+                var fileToSave = FileToSave.Map(formData);
+                fileToSave.DeleteLocalFileAfterSave = false;
+
+                await _repository.SaveAsync(fileToSave);
+            }
         }
 
         private static async Task<string> GetValue(Stream bodyStream, Encoding encoding)
