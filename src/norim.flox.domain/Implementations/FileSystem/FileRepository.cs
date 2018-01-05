@@ -20,17 +20,13 @@ namespace norim.flox.domain.Implementations.FileSystem
             return File.Exists(ToLocalPath(container, key));
         }
 
-        protected override Stream Get(string container, string key, out IDictionary<string, string> metadata)
+        protected override async Task<FileData> GetInternalAsync(string container, string key)
         {
             var filePath = ToLocalPath(container, key);
+
+            await Task.CompletedTask;
             
-            metadata = null;
-
-            if (!Exists(container, key))
-                return null;
-
-            metadata = GetMetadata(filePath);
-            return File.OpenRead(filePath);
+            return new FileData(File.OpenRead(filePath), GetMetadata(filePath));
         }
 
         protected override async Task SaveInternalAsync(string container, string key, Stream fileStream, IDictionary<string, string> metadata)
