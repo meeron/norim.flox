@@ -10,7 +10,7 @@ using norim.flox.web.Utilities;
 
 namespace norim.flox.web.Features.Api
 {
-    public class FilesController : Controller
+    public class FilesController : BaseController
     {
 
         private readonly IFileService _service;
@@ -27,7 +27,7 @@ namespace norim.flox.web.Features.Api
         {
             if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
             {
-                return BadRequestMsg($"Expected a multipart request, but got {Request.ContentType}");
+                return BadRequestObject($"Expected a multipart request, but got {Request.ContentType}");
             }
 
             try
@@ -38,15 +38,11 @@ namespace norim.flox.web.Features.Api
 
                 await _service.SaveAsync(boundary, Request.Body);
 
-                return Json(new
-                {
-                    RequestId = HttpContext.TraceIdentifier,
-                    ServerTimeUTC = DateTime.UtcNow.ToString("o")
-                });                
+                return OkObject();                
             }
             catch (Exception ex)
             {
-                return BadRequestMsg(ex.Message);
+                return BadRequestObject(ex.Message);
             }
         }
 
@@ -54,27 +50,18 @@ namespace norim.flox.web.Features.Api
         public async Task<IActionResult> Delete(DeleteFileRequest model)
         {
             if (model == null)
-                return BadRequestMsg("Invalid request model.");
+                return BadRequestObject("Invalid request model.");
 
             try
             {
                 await _service.DeleteAsync(model);
 
-                return Json(new
-                {
-                    RequestId = HttpContext.TraceIdentifier,
-                    ServerTimeUTC = DateTime.UtcNow.ToString("o")
-                });
+                return OkObject();
             }
             catch (System.Exception ex)
             {
-                return BadRequestMsg(ex.Message);
+                return BadRequestObject(ex.Message);
             }
-        }
-
-        private IActionResult BadRequestMsg(string msg)
-        {
-            return BadRequest(new ErrorResponse(HttpContext.TraceIdentifier, msg));            
         }
     }
 }
