@@ -26,10 +26,10 @@ namespace norim.flox.domain
             if (fileToSave == null)
                 throw new ArgumentNullException(nameof(fileToSave));
 
+            fileToSave.ThrowIfInvalid();
+
             if (Exists(fileToSave.Container, fileToSave.ResourceKey) && !fileToSave.Overwrite)
                 throw new InvalidOperationException($"Container '{fileToSave.Container}' already contains resource '{fileToSave.ResourceKey}'.");
-
-            fileToSave.ThrowIfInvalid();
 
             using(var fs = File.OpenRead(fileToSave.LocalPath))
             {
