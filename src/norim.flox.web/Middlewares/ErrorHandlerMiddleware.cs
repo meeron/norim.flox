@@ -2,6 +2,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using norim.flox.web.Models;
+using norim.flox.web.Extensions;
 
 namespace norim.flox.web.Middlewares
 {
@@ -22,12 +23,12 @@ namespace norim.flox.web.Middlewares
 
                 if (context.Response.StatusCode == 404)
                     await WriteResponse(context.Response,
-                        new ErrorResponse(context.TraceIdentifier, $"Resource '{context.Request.Path}' not found."), 404);
+                        new ErrorResponse(context.GetRequestId(), $"Resource '{context.Request.Path}' not found."), 404);
             }
             catch (System.Exception ex)
             {
                 await WriteResponse(context.Response,
-                    new ErrorResponse(context.TraceIdentifier, ex.Message), 500);
+                    new ErrorResponse(context.GetRequestId(), ex.Message), 500);
             }
         }
 

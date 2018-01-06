@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +36,14 @@ namespace norim.flox.web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.Use(async (context, next) =>
+            {
+                context.Items["RequestId"] = Guid.NewGuid().ToString();
+                context.Response.Headers.Add("RequestId", context.Items["RequestId"].ToString());
+                
+                await next.Invoke();
+            });
+
             app.UseMiddleware<ErrorHandlerMiddleware>();
             
             app.UseMvc(routes =>
