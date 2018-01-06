@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using norim.flox.web.Models;
 using norim.flox.web.Extensions;
+using norim.flox.core;
 
 namespace norim.flox.web.Middlewares
 {
@@ -34,15 +35,12 @@ namespace norim.flox.web.Middlewares
 
         private static async Task WriteResponse(HttpResponse response, ErrorResponse data, int statusCode)
         {
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(data);
-            var encoding = Encoding.UTF8;
-            var jsonData = encoding.GetBytes(json);
-
+            var json = JsonHelper.SerializeCamelCase(data);
             response.StatusCode = statusCode;
-            response.ContentLength = jsonData.LongLength;
             response.ContentType = "application/json";
+            response.ContentLength = Encoding.UTF8.GetBytes(json).LongLength; 
 
-            await response.WriteAsync(json, encoding);
+            await response.WriteAsync(json);
         }
     }
 }

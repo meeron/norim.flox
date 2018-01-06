@@ -29,7 +29,10 @@ namespace norim.flox.web
 
             services.AddMvc(options =>
             {
+                options.OutputFormatters.Clear();
+
                 options.Conventions.Add(new FeatureConvention());
+                options.OutputFormatters.Add(new JsonCamelCaseOutputFormatter());
             });
         }
 
