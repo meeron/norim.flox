@@ -52,11 +52,20 @@ namespace norim.flox.web
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                    name:"FeatureDefaultRoute",
+                    name:"FeatureDefault",
                     template: "_{feature}/{controller}/{action=Get}",
                     constraints: null,
                     defaults: null,
                     dataTokens: new { Namespace = "norim.flox.web.Features" });
+
+                routes.MapRoute(
+                    name:"Files",
+                    template: "{container}/{*resourceKey}",
+                    defaults: new { controller = "Home", action = "GetFile" });
+
+                routes.MapRoute(
+                    name:"Default",
+                    template: "{controller=Home}/{action=Index}");               
             });
         }
     }

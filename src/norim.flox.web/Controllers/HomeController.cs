@@ -13,9 +13,17 @@ namespace norim.flox.web.Controllers
             _repository = repository;
         }
 
-        [HttpGet("{container}/{*resourceKey}")]
-        public async Task<IActionResult> Index(string container, string resourceKey)
+        public IActionResult Index()
         {
+            return Content(string.Empty);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetFile(string container, string resourceKey)
+        {
+            if (string.IsNullOrWhiteSpace(resourceKey))
+                return NotFound();
+                
             var fileData = await _repository.GetAsync(container, resourceKey);
             if (fileData == null)
                 return NotFound();
