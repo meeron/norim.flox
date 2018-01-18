@@ -25,7 +25,7 @@ namespace norim.flox.web
         {
             services.AddSingleton<ISettings>(x => new Settings(Configuration));
             services.AddScoped<IFileService, FileService>();
-            services.AddScoped<IFileRepository, domain.Implementations.FileSystem.FileRepository>();
+            services.AddScoped<IFileRepository, domain.Implementations.FileSystemRepository>();
 
             services.AddMvc(options =>
             {

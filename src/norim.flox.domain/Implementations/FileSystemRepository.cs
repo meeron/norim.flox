@@ -4,13 +4,13 @@ using System.IO;
 using norim.flox.core.Configuration;
 using System.Threading.Tasks;
 
-namespace norim.flox.domain.Implementations.FileSystem
+namespace norim.flox.domain.Implementations
 {
-    public class FileRepository : FileRepositoryBase
+    public class FileSystemRepository : FileRepositoryBase
     {
         private readonly ISettings _settings;
 
-        public FileRepository(ISettings settings)
+        public FileSystemRepository(ISettings settings)
         {
             _settings = settings;
         }
