@@ -15,9 +15,6 @@ namespace norim.flox.domain
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentNullException(nameof(key));
 
-            if (!Exists(container, key))
-                return null;
-
             return await GetInternalAsync(container, key, onlyMetadata);
         }
 
