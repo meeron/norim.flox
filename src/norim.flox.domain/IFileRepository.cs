@@ -10,6 +10,6 @@ namespace norim.flox.domain
 
         Task DeleteAsync(string container, string resourceKey, bool checkFile);
 
-        Task<FileData> GetAsync(string container, string key);
+        Task<FileData> GetAsync(string container, string key, bool onlyMetadata = false);
     }
 }

@@ -7,7 +7,7 @@ namespace norim.flox.domain
 {
     public abstract class FileRepositoryBase : IFileRepository
     {
-        public async Task<FileData> GetAsync(string container, string key)
+        public async Task<FileData> GetAsync(string container, string key, bool onlyMetadata = false)
         {
             if (string.IsNullOrWhiteSpace(container))
                 throw new ArgumentNullException(nameof(container));
@@ -18,7 +18,7 @@ namespace norim.flox.domain
             if (!Exists(container, key))
                 return null;
 
-            return await GetInternalAsync(container, key);
+            return await GetInternalAsync(container, key, onlyMetadata);
         }
 
         public async Task SaveAsync(FileToSave fileToSave)
@@ -48,7 +48,7 @@ namespace norim.flox.domain
             await DeleteInternalAsync(container, resourceKey);
         }
 
-        protected abstract Task<FileData> GetInternalAsync(string container, string key);
+        protected abstract Task<FileData> GetInternalAsync(string container, string key, bool onlyMetadata);
 
         protected abstract bool Exists(string container, string key);
         

@@ -47,7 +47,7 @@ namespace norim.flox.domain.Implementations
             return fileContainer.Find(f => f.Key == key).Any();
         }
 
-        protected override async Task<FileData> GetInternalAsync(string container, string key)
+        protected override async Task<FileData> GetInternalAsync(string container, string key, bool onlyMetadata)
         {
             var fileContainer = _database.GetCollection<FloxFile>($"cnt_{container}");
 
@@ -55,6 +55,9 @@ namespace norim.flox.domain.Implementations
 
             if (floxFile == null)
                 return null;
+
+            if (onlyMetadata)
+               return new FileData(null, floxFile.Metadata, floxFile.Length);
 
             if (floxFile.Content == null)
                 return new FileData(_gridFs.OpenDownloadStream(floxFile.FileId), floxFile.Metadata);

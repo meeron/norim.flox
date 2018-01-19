@@ -24,8 +24,10 @@ namespace norim.flox.web.Controllers
         {
             if (string.IsNullOrWhiteSpace(resourceKey))
                 return NotFound();
+
+            var isHeadRequest = Request.Method == "HEAD";
                 
-            var fileData = await _repository.GetAsync(container, resourceKey);
+            var fileData = await _repository.GetAsync(container, resourceKey, isHeadRequest);
             if (fileData == null)
                 return NotFound();
 
@@ -34,9 +36,9 @@ namespace norim.flox.web.Controllers
                 Response.Headers.Add(item.Key, item.Value);
             }
 
-            if (Request.Method == "HEAD")
+            if (isHeadRequest)
             {
-                Response.ContentLength = fileData.Content.Length;
+                Response.ContentLength = fileData.Length;
                 return Ok();
             }
 
