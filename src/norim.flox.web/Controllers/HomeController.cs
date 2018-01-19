@@ -19,6 +19,7 @@ namespace norim.flox.web.Controllers
         }
 
         [HttpGet]
+        [HttpHead]
         public async Task<IActionResult> GetFile(string container, string resourceKey)
         {
             if (string.IsNullOrWhiteSpace(resourceKey))
@@ -31,6 +32,12 @@ namespace norim.flox.web.Controllers
             foreach (var item in fileData.Metadata)
             {
                 Response.Headers.Add(item.Key, item.Value);
+            }
+
+            if (Request.Method == "HEAD")
+            {
+                Response.ContentLength = fileData.Content.Length;
+                return Ok();
             }
 
             return File(fileData.Content, fileData.Metadata["Content-Type"]);
