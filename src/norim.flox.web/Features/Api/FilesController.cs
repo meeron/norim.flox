@@ -23,6 +23,7 @@ namespace norim.flox.web.Features.Api
         }
 
         [HttpPost, DisableFormValueModelBinding]
+        [RequestSizeLimit(int.MaxValue)]
         public async Task<IActionResult> Upload()
         {
             if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))

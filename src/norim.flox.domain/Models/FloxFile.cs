@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace norim.flox.domain.Models
@@ -9,7 +10,9 @@ namespace norim.flox.domain.Models
         [BsonId]
         public string Key { get; set; }
 
-        public byte[] Content { get; set;}
+        public byte[] Content { get; set; }
+
+        public ObjectId FileId { get; set; }
 
         public long Length { get; set; }
 
