@@ -11,6 +11,8 @@ namespace norim.flox.domain.Models
 
         public byte[] Content { get; set;}
 
+        public long Length { get; set; }
+
         public IDictionary<string, string> Metadata { get; set; }
 
         public DateTime CreatedAt { get; set; }

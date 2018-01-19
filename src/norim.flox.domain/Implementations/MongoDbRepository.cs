@@ -52,21 +52,34 @@ namespace norim.flox.domain.Implementations
 
         protected override async Task SaveInternalAsync(string container, string key, Stream fileStream, IDictionary<string, string> metadata)
         {
+            byte[] buffer = null;
+            var fileContainer = _database.GetCollection<FloxFile>($"cnt_{container}");
+
             if (fileStream.Length > FileInDocumentThreshold)
                 throw new NotSupportedException();
 
-            var buffer = new byte[fileStream.Length];
+            buffer = new byte[fileStream.Length];
             await fileStream.ReadAsync(buffer, 0, buffer.Length);
 
-            var fileContainer = _database.GetCollection<FloxFile>($"cnt_{container}");
-            await fileContainer.InsertOneAsync(new FloxFile
+            var newItem = new FloxFile
             {
                 Key = key,
                 Content = buffer,
+                Length = fileStream.Length,
                 Metadata = metadata,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
-            });     
+            };
+            
+            var updateDefinition = Builders<FloxFile>.Update
+                .Set(f => f.Content, newItem.Content)
+                .Set(f => f.Length, newItem.Length)
+                .Set(f => f.UpdatedAt, newItem.UpdatedAt)
+                .Set(f => f.Metadata, newItem.Metadata);
+
+            var item = await fileContainer.FindOneAndUpdateAsync(f => f.Key == key, updateDefinition);
+            if (item == null)
+                await fileContainer.InsertOneAsync(newItem);   
         }
     }
 }
