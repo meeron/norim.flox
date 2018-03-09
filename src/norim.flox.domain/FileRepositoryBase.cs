@@ -18,19 +18,22 @@ namespace norim.flox.domain
             return await GetInternalAsync(container, key, onlyMetadata);
         }
 
-        public async Task SaveAsync(FileToSave fileToSave)
+        public async Task SaveAsync(string container, FileToSave fileToSave)
         {
             if (fileToSave == null)
                 throw new ArgumentNullException(nameof(fileToSave));
 
+            if (string.IsNullOrWhiteSpace(container))
+                throw new ArgumentNullException(nameof(container));
+
             fileToSave.ThrowIfInvalid();
 
-            if (Exists(fileToSave.Container, fileToSave.ResourceKey) && !fileToSave.Overwrite)
-                throw new InvalidOperationException($"Container '{fileToSave.Container}' already contains resource '{fileToSave.ResourceKey}'.");
+            if (Exists(container, fileToSave.ResourceKey) && !fileToSave.Overwrite)
+                throw new InvalidOperationException($"Container '{container}' already contains resource '{fileToSave.ResourceKey}'.");
 
             using(var fs = File.OpenRead(fileToSave.LocalPath))
             {
-                await SaveInternalAsync(fileToSave.Container, fileToSave.ResourceKey, fs, fileToSave.Metadata);
+                await SaveInternalAsync(container, fileToSave.ResourceKey, fs, fileToSave.Metadata);
             }
 
             if (fileToSave.DeleteLocalFileAfterSave)

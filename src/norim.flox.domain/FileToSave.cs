@@ -14,8 +14,6 @@ namespace norim.flox.domain
 
         public string LocalPath { get; private set; }
 
-        public string Container { get; private set; }
-
         public string ResourceKey { get; private set; }
 
         public IDictionary<string, string> Metadata { get; private set; }
@@ -34,9 +32,6 @@ namespace norim.flox.domain
 
             if (new FileInfo(LocalPath).Length == 0)
                 throw new Exception("Local file is invalid.");
-
-            if (string.IsNullOrWhiteSpace(Container))
-                throw new Exception($"Form data doesn't contains '{nameof(Container)}' key or value is empty.");
 
             if (string.IsNullOrWhiteSpace(ResourceKey))
                 throw new Exception($"Form data doesn't contains '{nameof(ResourceKey)}' key or value is empty.");

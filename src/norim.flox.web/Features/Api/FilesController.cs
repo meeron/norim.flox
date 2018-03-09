@@ -10,6 +10,7 @@ using norim.flox.web.Utilities;
 
 namespace norim.flox.web.Features.Api
 {
+    [Route("_api/files")]
     public class FilesController : BaseController
     {
 
@@ -22,9 +23,9 @@ namespace norim.flox.web.Features.Api
             _service = service;
         }
 
-        [HttpPost, DisableFormValueModelBinding]
+        [HttpPost("{container}/upload"), DisableFormValueModelBinding]
         [RequestSizeLimit(int.MaxValue)]
-        public async Task<IActionResult> Upload()
+        public async Task<IActionResult> Upload(string container)
         {
             if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
             {
@@ -37,7 +38,7 @@ namespace norim.flox.web.Features.Api
                     MediaTypeHeaderValue.Parse(Request.ContentType),
                     DefaultFormOptions.MultipartBoundaryLengthLimit);
 
-                await _service.SaveAsync(boundary, Request.Body);
+                await _service.SaveAsync(container, boundary, Request.Body);
 
                 return OkObject();                
             }
@@ -47,15 +48,12 @@ namespace norim.flox.web.Features.Api
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Delete(DeleteFileRequest model)
+        [HttpDelete("{container}/{*resourceKey}")]
+        public async Task<IActionResult> Delete(string container, string resourceKey, bool checkFile = true)
         {
-            if (model == null)
-                return BadRequestObject("Invalid request model.");
-
             try
             {
-                await _service.DeleteAsync(model);
+                await _service.DeleteAsync(container, resourceKey, checkFile);
 
                 return OkObject();
             }

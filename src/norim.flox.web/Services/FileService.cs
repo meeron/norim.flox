@@ -22,7 +22,7 @@ namespace norim.flox.web.Services
             _repository = repository;
         }
 
-        public async Task SaveAsync(string boundary, Stream bodyStream)
+        public async Task SaveAsync(string container, string boundary, Stream bodyStream)
         {
             MultipartSection section = null;
             var formData = new NameValueCollection();
@@ -71,7 +71,7 @@ namespace norim.flox.web.Services
                 var fileToSave = FileToSave.Map(formData);
                 fileToSave.DeleteLocalFileAfterSave = false;
 
-                await _repository.SaveAsync(fileToSave);
+                await _repository.SaveAsync(container, fileToSave);
             }
         }
 
@@ -88,14 +88,15 @@ namespace norim.flox.web.Services
             }
         }
 
-        public async Task DeleteAsync(DeleteFileRequest request)
+        public async Task DeleteAsync(string container, string resourceKey, bool checkFile)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
+            if (string.IsNullOrWhiteSpace(container))
+                throw new ArgumentNullException(nameof(container));
 
-            request.ThrowIfInvalid();
+            if (string.IsNullOrWhiteSpace(resourceKey))
+                throw new ArgumentNullException(nameof(resourceKey));
 
-            await _repository.DeleteAsync(request.Container, request.ResourceKey, request.CheckFile);
+            await _repository.DeleteAsync(container, resourceKey, checkFile);
         }
 
         private static Encoding GetEncoding(MultipartSection section)

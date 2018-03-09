@@ -6,7 +6,7 @@ namespace norim.flox.domain
 {
     public interface IFileRepository
     {
-        Task SaveAsync(FileToSave fileToSave);
+        Task SaveAsync(string container, FileToSave fileToSave);
 
         Task DeleteAsync(string container, string resourceKey, bool checkFile);
 
