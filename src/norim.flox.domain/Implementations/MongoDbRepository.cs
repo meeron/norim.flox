@@ -34,7 +34,7 @@ namespace norim.flox.domain.Implementations
             var fileContainer = _database.GetCollection<FloxFile>($"cnt_{container}");
 
             var item = await fileContainer.FindOneAndDeleteAsync(f => f.Key == key);
-            if (item != null)
+            if (item != null && !item.FileId.Equals(ObjectId.Empty))
             {
                 await _gridFs.DeleteAsync(item.FileId);
             }
