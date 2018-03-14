@@ -14,42 +14,36 @@ namespace norim.flox.domain.Implementations
     {
         private const long FileInDocumentThreshold = 15728640;
 
-        private readonly IMongoDatabase _database;
-
-        private readonly IGridFSBucket _gridFs;
+        private readonly IMongoClient _client;
         
         public MongoDbRepository(ISettings settings)
         {
             var mongoUrl = new MongoUrl(settings.Domain.MongoDbConnectionString);
 
-            _database = new MongoClient(mongoUrl).GetDatabase(mongoUrl.DatabaseName);
-            _gridFs = new GridFSBucket(_database, new GridFSBucketOptions
-            {
-                ChunkSizeBytes = 1048576
-            });
+            _client = new MongoClient(mongoUrl);
         }
 
         protected override async Task DeleteInternalAsync(string container, string key)
         {
-            var fileContainer = _database.GetCollection<FloxFile>($"cnt_{container}");
+            var fileContainer = GetFileContainer(container);
 
             var item = await fileContainer.FindOneAndDeleteAsync(f => f.Key == key);
             if (item != null && !item.FileId.Equals(ObjectId.Empty))
             {
-                await _gridFs.DeleteAsync(item.FileId);
+                await GetGridFSBucket(container).DeleteAsync(item.FileId);
             }
         }
 
         protected override bool Exists(string container, string key)
         {
-            var fileContainer = _database.GetCollection<FloxFile>($"cnt_{container}");
+            var fileContainer = GetFileContainer(container);
 
             return fileContainer.Find(f => f.Key == key).Any();
         }
 
         protected override async Task<FileData> GetInternalAsync(string container, string key, bool onlyMetadata)
         {
-            var fileContainer = _database.GetCollection<FloxFile>($"cnt_{container}");
+            var fileContainer = GetFileContainer(container);
 
             var floxFile = (await fileContainer.FindAsync(f => f.Key == key)).FirstOrDefault();
 
@@ -60,7 +54,7 @@ namespace norim.flox.domain.Implementations
                return new FileData(null, floxFile.Metadata, floxFile.Length);
 
             if (floxFile.Content == null)
-                return new FileData(_gridFs.OpenDownloadStream(floxFile.FileId), floxFile.Metadata);
+                return new FileData(GetGridFSBucket(container).OpenDownloadStream(floxFile.FileId), floxFile.Metadata);
 
             return new FileData(new MemoryStream(floxFile.Content), floxFile.Metadata);
         }
@@ -69,14 +63,13 @@ namespace norim.flox.domain.Implementations
         {
             byte[] buffer = null;
             ObjectId gridFsId = ObjectId.Empty;
-            var exists = Exists(container, key);
 
-            var fileContainer = _database.GetCollection<FloxFile>($"cnt_{container}");
+            var fileContainer = GetFileContainer(container);
             var currentItem = (await fileContainer.FindAsync(f => f.Key == key)).FirstOrDefault();
 
             if (fileStream.Length > FileInDocumentThreshold)
             {
-                gridFsId = await _gridFs.UploadFromStreamAsync($"{container}/{key}", fileStream);
+                gridFsId = await GetGridFSBucket(container).UploadFromStreamAsync($"{container}/{key}", fileStream);
             }
             else
             {
@@ -108,11 +101,26 @@ namespace norim.flox.domain.Implementations
 
                 if (!currentItem.FileId.Equals(ObjectId.Empty))
                 {
-                    await _gridFs.DeleteAsync(currentItem.FileId);
+                    await GetGridFSBucket(container).DeleteAsync(currentItem.FileId);
                 }
             }
             else
                 await fileContainer.InsertOneAsync(newItem);
+        }
+
+        private IMongoCollection<FloxFile> GetFileContainer(string container)
+        {
+            var database = _client.GetDatabase($"flox_cnt_{container}");
+            return database.GetCollection<FloxFile>($"flx.files");
+        }
+
+        private IGridFSBucket GetGridFSBucket(string container)
+        {
+            var database = _client.GetDatabase($"flox_cnt_{container}");
+            return new GridFSBucket(database, new GridFSBucketOptions
+            {
+                ChunkSizeBytes = 1048576
+            });        
         }
     }
 }
